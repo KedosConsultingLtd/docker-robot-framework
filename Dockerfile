@@ -1,4 +1,4 @@
-FROM fedora:28
+FROM fedora:29
 
 MAINTAINER Paul Podgorsek <ppodgorsek@users.noreply.github.com>
 LABEL description Robot Framework in Docker.
@@ -12,15 +12,21 @@ ENV SCREEN_COLOUR_DEPTH 24
 ENV SCREEN_HEIGHT 1080
 ENV SCREEN_WIDTH 1920
 
+# Set number of threads for parallel execution
+# By default, no parallelisation
+ENV ROBOT_THREADS 1
+
 # Dependency versions
-ENV CHROMIUM_VERSION 67.0.*
+ENV CHROMIUM_VERSION 71.0.*
 ENV FAKER_VERSION 4.2.0
-ENV FIREFOX_VERSION 61.0*
-ENV GECKO_DRIVER_VERSION v0.19.1
-ENV PYTHON_PIP_VERSION 9.0.*
-ENV ROBOT_FRAMEWORK_VERSION 3.0.4
-ENV SELENIUM_LIBRARY_VERSION 3.1.1
-ENV XVFB_VERSION 1.19.*
+ENV FIREFOX_VERSION 65.0*
+ENV GECKO_DRIVER_VERSION v0.22.0
+ENV PABOT_VERSION 0.46
+ENV PYTHON_PIP_VERSION 18.0*
+ENV REQUESTS_VERSION 0.5.0
+ENV ROBOT_FRAMEWORK_VERSION 3.1.1
+ENV SELENIUM_LIBRARY_VERSION 3.3.1
+ENV XVFB_VERSION 1.20.*
 
 # Install system dependencies
 RUN dnf upgrade -y \
@@ -39,12 +45,14 @@ RUN dnf upgrade -y \
 RUN pip install \
   robotframework==$ROBOT_FRAMEWORK_VERSION \
   robotframework-faker==$FAKER_VERSION \
+  robotframework-pabot==$PABOT_VERSION \
+  robotframework-requests==$REQUESTS_VERSION \
   robotframework-seleniumlibrary==$SELENIUM_LIBRARY_VERSION
 
 # Download Gecko drivers directly from the GitHub repository
 RUN wget -q "https://github.com/mozilla/geckodriver/releases/download/$GECKO_DRIVER_VERSION/geckodriver-$GECKO_DRIVER_VERSION-linux64.tar.gz" \
       && tar xzf geckodriver-$GECKO_DRIVER_VERSION-linux64.tar.gz \
-      && mkdir /opt/robotframework/drivers/ \
+      && mkdir -p /opt/robotframework/drivers/ \
       && mv geckodriver /opt/robotframework/drivers/geckodriver \
       && rm geckodriver-$GECKO_DRIVER_VERSION-linux64.tar.gz
 
